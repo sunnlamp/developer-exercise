@@ -11,7 +11,7 @@ class WhereTest < Minitest::Test
   end
 
   def test_where_with_exact_match
-    assert_equal [@wolf], @fixtures.where(:name => 'The Wolf'),
+    assert_equal [@wolf], @fixtures.where(:name => 'The Wolf')
   end
 
   def test_where_with_partial_match
@@ -30,4 +30,3 @@ class WhereTest < Minitest::Test
     assert_equal [@charles], @fixtures.where(:quote => /if/i).where(:rank => 3)
   end
 end
-
