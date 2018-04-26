@@ -8,8 +8,18 @@ class App extends Component {
     super(props);
     this.state = {
       isLoaded: false,
-      quotes: []
+      quotes: [],
+      currentPage: 1,
+      quotesPerPage: 15
     };
+
+    this.handlePageClick = this.handlePageClick.bind(this);
+  }
+
+  handlePageClick(event) {
+    this.setState({
+      currentPage: Number(event.target.id)
+    })
   }
 
   componentDidMount() {
@@ -18,27 +28,48 @@ class App extends Component {
       .then((data) => {
         this.setState({
           isLoaded: true,
-          quotes: _.sortBy(data, 'theme')
+          quotes: _.shuffle(data)
         })
       })
   }
 
   render() {
-    const { isLoaded, quotes } = this.state;
+    const { isLoaded, quotes, currentPage, quotesPerPage } = this.state;
+
+      const indexOfLastQuote = currentPage * quotesPerPage;
+      const indexOfFirstQuote = indexOfLastQuote - quotesPerPage;
+      const currentQuotes = _.toArray(this.state.quotes).slice(indexOfFirstQuote, indexOfLastQuote);
+
+      // Logic for displaying page numbers
+      const pageNumbers = [];
+      for (let i = 1; i <= Math.ceil(quotes.length / quotesPerPage); i++) {
+        pageNumbers.push(i);
+      }
+
+      const renderPageNumbers = pageNumbers.map(number => {
+        return (
+          <button
+            key={number}
+            id={number}
+            onClick={this.handlePageClick}
+          >
+            {number}
+          </button>
+        );
+      });
+
       if (!isLoaded) {
         return <div>Loading..</div>
       } else {
         return (
-          <QuotesList
-            quotes={this.state.quotes}
-          />
-          // <ul>
-          //   {quotes.map((quote, index) => (
-          //     <li key={index}>
-          //       {quote.source}, {quote.context}, {quote.quote}
-          //     </li>
-          //   ))}
-          // </ul>
+          <div>
+            <QuotesList
+              quotes={currentQuotes}
+            />
+            <ul>
+              {renderPageNumbers}
+            </ul>
+          </div>
         )
       }
   }
