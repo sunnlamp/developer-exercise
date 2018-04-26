@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
+import _ from 'underscore';
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      isLoaded: false,
       quotes: []
     };
   }
@@ -15,27 +16,27 @@ class App extends Component {
       .then(response => response.json())
       .then((data) => {
         this.setState({
-          quotes: data
+          isLoaded: true,
+          quotes: _.sortBy(data, 'theme')
         })
       })
-      .then(
-        console.log(this.state.quotes)
-      )
   }
 
-
-
   render() {
-    const { quotes } = this.state;
-    return (
-      <ul>
-        {quotes.map((quote, index) => (
-          <li key={index}>
-            {quote.source}
-          </li>
-        ))}
-      </ul>
-    )
+    const { isLoaded, quotes } = this.state;
+      if (!isLoaded) {
+        return <div>Loading..</div>
+      } else {
+        return (
+          <ul>
+            {quotes.map((quote, index) => (
+              <li key={index}>
+                {quote.source}, {quote.context}, {quote.quote}
+              </li>
+            ))}
+          </ul>
+        )
+      }
   }
 }
 
