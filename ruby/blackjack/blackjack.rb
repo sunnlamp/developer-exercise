@@ -77,11 +77,12 @@ class Game
   end
 
   def display_player_total
-    @total
-    player_hand.cards.each do |card|
-      @total += card.value
+    total = 0
+    @cards = player_hand.cards
+    @cards.each do |card|
+      total += card.value
     end
-    return @total
+    total
   end
 
   def print_player_cards
@@ -154,7 +155,7 @@ class GameTest < Test::Unit::TestCase
     @cards << @game.player_hand.cards[0]
     @cards << @game.player_hand.cards[1]
 
-    assert @game.display_player_hand, @card_string
+    assert_equal @game.display_player_hand, @cards
   end
 
   def test_game_sums_player_card_values
@@ -163,9 +164,9 @@ class GameTest < Test::Unit::TestCase
     @cards = []
     @cards << @game.player_hand.cards[0]
     @cards << @game.player_hand.cards[1]
+    @total = @cards[0].value + @cards[1].value
 
-    @game.print_player_total
-
+    assert_equal @game.display_player_total, @total
   end
 
 end
