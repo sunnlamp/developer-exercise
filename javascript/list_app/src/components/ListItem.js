@@ -3,9 +3,7 @@ import React from 'react';
 const ListItem = ({source, quote, context}) => {
   return (
     <li>
-      <div>
-        <p>{source} from {context}. "{quote}" </p>
-      </div>
+      <p>{source} from {context}. "{quote}" </p>
     </li>
   )
 }

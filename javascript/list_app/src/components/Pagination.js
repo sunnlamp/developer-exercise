@@ -1,13 +1,19 @@
-import React, { PureComponent } from 'react';
+import _ from 'underscore';
+import React from 'react';
+import QuotesList from './QuotesList';
 
-class Pagination extends Component {
+const Pagination = ({currentPage, quotesPerPage, lastQuoteIndex,
+  firstQuoteIndex, quotes, onPageSelect}) => {
+  const currentQuotes = _.toArray(quotes).slice(firstQuoteIndex, lastQuoteIndex);
 
-  render() {
-    return (
-      <div></div>
-    );
-  }
+  return (
+    <div>
+      <QuotesList
+        quotes={currentQuotes}
+      />
 
+    </div>
+  )
 }
 
 export default Pagination;

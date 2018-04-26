@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import React, { Component } from 'react';
 import './App.css';
-import QuotesList from './components/QuotesList';
+import Pagination from './components/Pagination';
 
 class App extends Component {
   constructor(props) {
@@ -38,9 +38,8 @@ class App extends Component {
 
       const indexOfLastQuote = currentPage * quotesPerPage;
       const indexOfFirstQuote = indexOfLastQuote - quotesPerPage;
-      const currentQuotes = _.toArray(this.state.quotes).slice(indexOfFirstQuote, indexOfLastQuote);
+      // const currentQuotes = _.toArray(this.state.quotes).slice(indexOfFirstQuote, indexOfLastQuote);
 
-      // Logic for displaying page numbers
       const pageNumbers = [];
       for (let i = 1; i <= Math.ceil(quotes.length / quotesPerPage); i++) {
         pageNumbers.push(i);
@@ -63,12 +62,15 @@ class App extends Component {
       } else {
         return (
           <div>
-            <QuotesList
-              quotes={currentQuotes}
+            <Pagination
+              onPageSelect={selectedPage => this.setState({currentPage})}
+              currentPage={currentPage}
+              quotesPerPage={quotesPerPage}
+              lastQuoteIndex={indexOfLastQuote}
+              firstQuoteIndex={indexOfFirstQuote}
+              quotes={quotes}
             />
-            <ul>
-              {renderPageNumbers}
-            </ul>
+            <div>{renderPageNumbers}</div>
           </div>
         )
       }
