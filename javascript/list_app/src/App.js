@@ -1,6 +1,7 @@
+import _ from 'underscore';
 import React, { Component } from 'react';
 import './App.css';
-import _ from 'underscore';
+import QuotesList from './components/QuotesList';
 
 class App extends Component {
   constructor(props) {
@@ -28,13 +29,16 @@ class App extends Component {
         return <div>Loading..</div>
       } else {
         return (
-          <ul>
-            {quotes.map((quote, index) => (
-              <li key={index}>
-                {quote.source}, {quote.context}, {quote.quote}
-              </li>
-            ))}
-          </ul>
+          <QuotesList
+            quotes={this.state.quotes}
+          />
+          // <ul>
+          //   {quotes.map((quote, index) => (
+          //     <li key={index}>
+          //       {quote.source}, {quote.context}, {quote.quote}
+          //     </li>
+          //   ))}
+          // </ul>
         )
       }
   }
