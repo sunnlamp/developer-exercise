@@ -2,6 +2,7 @@ import _ from 'underscore';
 import React, { Component } from 'react';
 import './App.css';
 import Pagination from './components/Pagination';
+import QuoteSearch from './components/QuoteSearch';
 
 class App extends Component {
   constructor(props) {
@@ -9,16 +10,27 @@ class App extends Component {
     this.state = {
       isLoaded: false,
       quotes: [],
+      quoteSearch: [],
       currentPage: 1,
       quotesPerPage: 15
     };
 
-    this.handlePageClick = this.handlePageClick.bind(this);
+    this.handlePageClick.bind(this);
+    this.termSearch.bind(this);
   }
 
   handlePageClick(event) {
     this.setState({
       currentPage: Number(event.target.id)
+    })
+  }
+
+  termSearch(term) {
+    _.findWhere(this.quotes, { quote: term}, (quotes) => {
+      this.setState({
+        quotes: quotes,
+        currentPage: 1
+      })
     })
   }
 
@@ -34,46 +46,50 @@ class App extends Component {
   }
 
   render() {
-    const { isLoaded, quotes, currentPage, quotesPerPage } = this.state;
+    const { isLoaded, quotes, currentPage,
+      quotesPerPage } = this.state;
 
-      const indexOfLastQuote = currentPage * quotesPerPage;
-      const indexOfFirstQuote = indexOfLastQuote - quotesPerPage;
-      // const currentQuotes = _.toArray(this.state.quotes).slice(indexOfFirstQuote, indexOfLastQuote);
 
-      const pageNumbers = [];
-      for (let i = 1; i <= Math.ceil(quotes.length / quotesPerPage); i++) {
-        pageNumbers.push(i);
-      }
+    const indexOfLastQuote = currentPage * quotesPerPage;
+    const indexOfFirstQuote = indexOfLastQuote - quotesPerPage;
 
-      const renderPageNumbers = pageNumbers.map(number => {
-        return (
-          <button
-            key={number}
-            id={number}
-            onClick={this.handlePageClick}
-          >
-            {number}
-          </button>
-        );
-      });
+    const pageNumbers = [];
+    for (let i = 1; i <= Math.ceil(quotes.length / quotesPerPage); i++) {
+      pageNumbers.push(i);
+    }
 
-      if (!isLoaded) {
-        return <div>Loading..</div>
-      } else {
-        return (
-          <div>
-            <Pagination
-              onPageSelect={selectedPage => this.setState({currentPage})}
-              currentPage={currentPage}
-              quotesPerPage={quotesPerPage}
-              lastQuoteIndex={indexOfLastQuote}
-              firstQuoteIndex={indexOfFirstQuote}
-              quotes={quotes}
-            />
-            <div>{renderPageNumbers}</div>
-          </div>
-        )
-      }
+    const renderPageNumbers = pageNumbers.map(number => {
+      return (
+        <button
+          key={number}
+          id={number}
+          onClick={this.handlePageClick}
+        >
+          {number}
+        </button>
+      );
+    });
+
+    if (!isLoaded) {
+      return <div>Loading..</div>
+    } else {
+      return (
+        <div>
+          <QuoteSearch
+            onSearchTermChange={termSearch}
+          />
+          <Pagination
+            onPageSelect={selectedPage => this.setState({currentPage})}
+            currentPage={currentPage}
+            quotesPerPage={quotesPerPage}
+            lastQuoteIndex={indexOfLastQuote}
+            firstQuoteIndex={indexOfFirstQuote}
+            quotes={quotes}
+          />
+          <div>{renderPageNumbers}</div>
+        </div>
+      )
+    }
   }
 }
 
