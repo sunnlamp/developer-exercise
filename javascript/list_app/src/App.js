@@ -46,8 +46,8 @@ class App extends Component {
   }
 
   render() {
-    const { isLoaded, quotes, currentPage,
-      quotesPerPage } = this.state;
+    const { isLoaded, quotes, currentPage, quotesPerPage } = this.state;
+    // const termSearch = (term) => { this.termSearch(term) }
 
 
     const indexOfLastQuote = currentPage * quotesPerPage;
@@ -76,7 +76,7 @@ class App extends Component {
       return (
         <div>
           <QuoteSearch
-            onSearchTermChange={termSearch}
+            // onSearchTermChange={termSearch}
           />
           <Pagination
             onPageSelect={selectedPage => this.setState({currentPage})}
