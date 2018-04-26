@@ -82,6 +82,17 @@ class Game
     @cards.each do |card|
       total += card.value
     end
+    # if total > 21
+    #   if ace = player_hand.cards.select{|card, hash| hash[:ace] == [11, 1]}
+    #   else
+    #     total
+    #   end
+    #   ace.value = 1
+    #   @cards = player_hand.cards
+    #   @cards.each do |card|
+    #     total += card.value
+    #   end
+    # end
     total
   end
 
@@ -93,8 +104,30 @@ class Game
     puts display_player_total
   end
 
-  def bust
+  def display_dealer_card
+    card = dealer_hand.cards[0]
+    "#{card.name} of #{card.value}"
+  end
 
+  def dealer_stay
+    total = 0
+    @cards = dealer_hand.cards
+    @cards.each do |card|
+      total += card.value
+    end
+    if total == 17
+      true
+    else
+      false
+    end
+  end
+
+  def bust
+    if display_player_total > 21
+      true
+    else
+      false
+    end
   end
 
 end
@@ -169,4 +202,26 @@ class GameTest < Test::Unit::TestCase
     assert_equal @game.display_player_total, @total
   end
 
+  def test_game_displays_dealer_first_card
+    @game.deal(@game.dealer_hand, @game.deck)
+    @game.deal(@game.dealer_hand, @game.deck)
+
+    @game.display_dealer_card
+  end
+
+  def test_game_checks_for_a_bust
+    @game.player_hand.cards = []
+    @game.player_hand.cards << Card.new(:hearts, :jack, 10)
+    @game.player_hand.cards << Card.new(:diamonds, :jack, 10)
+    @game.player_hand.cards << Card.new(:spades, :seven, 7)
+
+    assert @game.bust
+  end
+
+  def test_game_checks_is_dealer_lands_on_17
+    @game.dealer_hand.cards << Card.new(:hearts, :jack, 10)
+    @game.dealer_hand.cards << Card.new(:diamonds, :seven, 7)
+    puts @game.dealer_stay
+    assert @game.dealer_stay
+  end
 end
