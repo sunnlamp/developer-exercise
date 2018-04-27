@@ -82,17 +82,6 @@ class Game
     @cards.each do |card|
       total += card.value
     end
-    # if total > 21
-    #   if ace = player_hand.cards.select{|card, hash| hash[:ace] == [11, 1]}
-    #   else
-    #     total
-    #   end
-    #   ace.value = 1
-    #   @cards = player_hand.cards
-    #   @cards.each do |card|
-    #     total += card.value
-    #   end
-    # end
     total
   end
 
@@ -107,6 +96,26 @@ class Game
   def display_dealer_card
     card = dealer_hand.cards[0]
     "#{card.name} of #{card.value}"
+  end
+
+  def check_for_ace(cards)
+    cards.find { |card| :ace }
+  end
+
+  def adjust_ace
+    total = 0
+    @cards = player_hand.cards
+    position = @cards.index { |card| card.name == :ace }
+    ace = @cards.pop(position - 1)
+
+    @cards.each do |card|
+      total += card.value
+    end
+
+    if total + 11 > 21
+
+    end
+
   end
 
   def dealer_stay
@@ -221,7 +230,27 @@ class GameTest < Test::Unit::TestCase
   def test_game_checks_is_dealer_lands_on_17
     @game.dealer_hand.cards << Card.new(:hearts, :jack, 10)
     @game.dealer_hand.cards << Card.new(:diamonds, :seven, 7)
-    puts @game.dealer_stay
+
     assert @game.dealer_stay
+  end
+
+  def test_game_checks_for_presence_of_ace
+    @game.player_hand.cards = []
+    @game.player_hand.cards << Card.new(:hearts, :jack, 10)
+    @game.player_hand.cards << Card.new(:diamonds, :jack, 10)
+    @game.player_hand.cards << Card.new(:diamonds, :ace, [11, 1])
+
+    assert @game.check_for_ace(@game.player_hand.cards)
+  end
+
+  def test_game_modifies_ace_based_on_total_of_hand
+    @game.player_hand.cards = []
+    @game.player_hand.cards << Card.new(:hearts, :jack, 10)
+    @game.player_hand.cards << Card.new(:diamonds, :jack, 10)
+    @game.player_hand.cards << Card.new(:diamonds, :ace, [11, 1])
+    @game.check_for_ace(@game.player_hand.cards)
+
+    @game.adjust_ace
+    # assert @game.display_player_total, 21
   end
 end
