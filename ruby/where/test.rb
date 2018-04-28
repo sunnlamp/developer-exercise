@@ -1,4 +1,6 @@
 require 'minitest/autorun'
+require_relative 'where.rb'
+include Where
 
 class WhereTest < Minitest::Test
   def setup

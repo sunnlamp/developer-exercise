@@ -76,68 +76,93 @@ class Game
     end
   end
 
-  def display_player_total
-    total = 0
-    @cards = player_hand.cards
-    @cards.each do |card|
-      total += card.value
+  def display_dealer_card
+    card = dealer_hand.cards[0]
+    "#{card.name} of #{card.value}"
+  end
+
+  def display_dealer_hand
+    dealer_hand.cards.each do |card|
+      "#{card.name} of #{card.suite}"
     end
-    total
   end
 
   def print_player_cards
     puts display_player_hand
   end
 
+  def print_dealer_card
+    puts display_dealer_card
+  end
+
   def print_player_total
-    puts display_player_total
+    puts total_score
   end
 
-  def display_dealer_card
-    card = dealer_hand.cards[0]
-    "#{card.name} of #{card.value}"
-  end
-
-  def check_for_ace(cards)
-    cards.find { |card| :ace }
-  end
-
-  def adjust_ace
+  def total_score
     total = 0
-    @cards = player_hand.cards
-    position = @cards.index { |card| card.name == :ace }
-    ace = @cards.pop(position - 1)
+    cards = player_hand.cards
 
-    @cards.each do |card|
-      total += card.value
+    if !check_for_ace?(cards)
+      cards.each do |card|
+        total += card.value
+      end
     end
+    if check_for_ace?(cards) == true
+      sorted = cards.sort_by { |card| card.name }.reverse
+      sorted.pop
 
-    if total + 11 > 21
-
+      sorted.each do |card|
+        total += card.value
+      end
+      if total < 12
+        total += 10
+      else
+        total += 1
+      end
     end
+    total
+  end
 
+  def check_for_ace?(cards)
+    cards.sort_by { |card| card.name }
+
+    return true if cards.find { |card| card.name ==  :ace }
+  end
+
+  def find_ace
+    position = player_hand.cards.index { |card| card.name == :ace }
+    position
   end
 
   def dealer_stay
     total = 0
-    @cards = dealer_hand.cards
-    @cards.each do |card|
+    cards = dealer_hand.cards
+    cards.each do |card|
       total += card.value
     end
     if total == 17
       true
-    else
-      false
     end
   end
 
   def bust
-    if display_player_total > 21
+    return true if total_score > 21
+  end
+
+  def blackjack
+    if total_score == 21
       true
-    else
-      false
     end
   end
+
+  def hit_or_stay
+    if !dealer_stay
+      deal_card(dealer_hand, @game.deck)
+    end
+  end
+
+
 
 end
 
@@ -201,14 +226,12 @@ class GameTest < Test::Unit::TestCase
   end
 
   def test_game_sums_player_card_values
+    @game.player_hand.cards = []
     @game.deal(@game.player_hand, @game.deck)
     @game.deal(@game.player_hand, @game.deck)
-    @cards = []
-    @cards << @game.player_hand.cards[0]
-    @cards << @game.player_hand.cards[1]
-    @total = @cards[0].value + @cards[1].value
+    @total = @game.total_score
 
-    assert_equal @game.display_player_total, @total
+    assert_equal @game.total_score, @total
   end
 
   def test_game_displays_dealer_first_card
@@ -234,23 +257,22 @@ class GameTest < Test::Unit::TestCase
     assert @game.dealer_stay
   end
 
-  def test_game_checks_for_presence_of_ace
+  def test_game_checks_for_location_of_ace
     @game.player_hand.cards = []
     @game.player_hand.cards << Card.new(:hearts, :jack, 10)
     @game.player_hand.cards << Card.new(:diamonds, :jack, 10)
     @game.player_hand.cards << Card.new(:diamonds, :ace, [11, 1])
 
-    assert @game.check_for_ace(@game.player_hand.cards)
+    assert_equal @game.find_ace, 2
   end
 
-  def test_game_modifies_ace_based_on_total_of_hand
+  def test_game_counts_ace_as_one
     @game.player_hand.cards = []
     @game.player_hand.cards << Card.new(:hearts, :jack, 10)
     @game.player_hand.cards << Card.new(:diamonds, :jack, 10)
     @game.player_hand.cards << Card.new(:diamonds, :ace, [11, 1])
-    @game.check_for_ace(@game.player_hand.cards)
 
-    @game.adjust_ace
-    # assert @game.display_player_total, 21
+    assert_equal @game.total_score, 21
   end
+
 end
