@@ -99,9 +99,9 @@ class Game
     puts total_score
   end
 
-  def total_score
+  def total_score(hand)
     total = 0
-    cards = player_hand.cards
+    cards = hand
 
     if !check_for_ace?(cards)
       cards.each do |card|
@@ -115,8 +115,8 @@ class Game
       sorted.each do |card|
         total += card.value
       end
-      if total < 12
-        total += 10
+      if total < 11
+        total += 11
       else
         total += 1
       end
@@ -131,38 +131,36 @@ class Game
   end
 
   def find_ace
-    position = player_hand.cards.index { |card| card.name == :ace }
-    position
+    return position = player_hand.cards.index { |card| card.name == :ace }
   end
 
-  def dealer_stay
-    total = 0
-    cards = dealer_hand.cards
-    cards.each do |card|
-      total += card.value
-    end
-    if total == 17
-      true
+  def dealer_stay(cards)
+    return true if total_score(cards) == 17
+  end
+
+  def hit_or_stay(cards)
+    if !dealer_stay(cards)
+      deal(dealer_hand, deck)
     end
   end
 
-  def bust
-    return true if total_score > 21
+  def bust(hand)
+    return true if total_score(hand) > 21
   end
 
-  def blackjack
-    if total_score == 21
-      true
+  def blackjack(hand)
+    return true if total_score(hand) == 21
+  end
+
+  def start
+    play = true
+    game.initialize
+    while (play)
+      if condition
+
+      end
     end
   end
-
-  def hit_or_stay
-    if !dealer_stay
-      deal_card(dealer_hand, @game.deck)
-    end
-  end
-
-
 
 end
 
@@ -229,9 +227,9 @@ class GameTest < Test::Unit::TestCase
     @game.player_hand.cards = []
     @game.deal(@game.player_hand, @game.deck)
     @game.deal(@game.player_hand, @game.deck)
-    @total = @game.total_score
+    @total = @game.total_score(@game.player_hand.cards)
 
-    assert_equal @game.total_score, @total
+    assert_equal @game.total_score(@game.player_hand.cards), @total
   end
 
   def test_game_displays_dealer_first_card
@@ -247,14 +245,23 @@ class GameTest < Test::Unit::TestCase
     @game.player_hand.cards << Card.new(:diamonds, :jack, 10)
     @game.player_hand.cards << Card.new(:spades, :seven, 7)
 
-    assert @game.bust
+    assert @game.bust(@game.player_hand.cards)
   end
 
-  def test_game_checks_is_dealer_lands_on_17
+  def test_game_checks_if_dealer_lands_on_17
     @game.dealer_hand.cards << Card.new(:hearts, :jack, 10)
     @game.dealer_hand.cards << Card.new(:diamonds, :seven, 7)
 
-    assert @game.dealer_stay
+    assert @game.dealer_stay(@game.dealer_hand.cards)
+  end
+
+  def test_game_hits_if_dealer_lands_on_less_than_17
+    @game.dealer_hand.cards << Card.new(:hearts, :jack, 10)
+    @game.dealer_hand.cards << Card.new(:diamonds, :six, 6)
+    initial_score = @game.total_score(@game.dealer_hand.cards)
+    new_score = @game.total_score(@game.hit_or_stay(@game.dealer_hand.cards))
+
+    assert_not_equal initial_score, new_score
   end
 
   def test_game_checks_for_location_of_ace
@@ -272,7 +279,24 @@ class GameTest < Test::Unit::TestCase
     @game.player_hand.cards << Card.new(:diamonds, :jack, 10)
     @game.player_hand.cards << Card.new(:diamonds, :ace, [11, 1])
 
-    assert_equal @game.total_score, 21
+    assert_equal @game.total_score(@game.player_hand.cards), 21
+  end
+
+  def test_game_checks_for_blackjack
+    @game.player_hand.cards = []
+    @game.player_hand.cards << Card.new(:hearts, :jack, 10)
+    @game.player_hand.cards << Card.new(:diamonds, :jack, 10)
+    @game.player_hand.cards << Card.new(:diamonds, :ace, [11, 1])
+
+    assert @game.blackjack(@game.player_hand.cards)
+  end
+
+  def test_game_check_for_black_with_two_cards
+    @game.player_hand.cards = []
+    @game.player_hand.cards << Card.new(:diamonds, :jack, 10)
+    @game.player_hand.cards << Card.new(:diamonds, :ace, [11, 1])
+
+    assert @game.blackjack(@game.player_hand.cards)
   end
 
 end
