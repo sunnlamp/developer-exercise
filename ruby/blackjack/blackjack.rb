@@ -218,10 +218,12 @@ class Game
           if bust(dealer_hand.cards)
             play  = false
             puts "Dealer loses, you win!"
+            break
           end
           if blackjack(dealer_hand.cards)
             play = false
             puts "Dealer wins, you lose."
+            break
           end
         end
       end
@@ -230,6 +232,9 @@ class Game
         play = false
         puts "****************************************"
         puts "You win!"
+      else
+        puts "****************************************"
+        puts "You lose."
       end
 
       play = false
