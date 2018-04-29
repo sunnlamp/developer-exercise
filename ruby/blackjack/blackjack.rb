@@ -78,11 +78,12 @@ class Game
 
   def display_dealer_card
     card = dealer_hand.cards[0]
-    "#{card.name} of #{card.value}"
+    "#{card.name} of #{card.suite}"
   end
 
   def display_dealer_hand
-    dealer_hand.cards.each do |card|
+    cards = dealer_hand.cards
+    cards.each do |card|
       "#{card.name} of #{card.suite}"
     end
   end
@@ -125,8 +126,6 @@ class Game
   end
 
   def check_for_ace?(cards)
-    cards.sort_by { |card| card.name }
-
     return true if cards.find { |card| card.name ==  :ace }
   end
 
@@ -135,7 +134,7 @@ class Game
   end
 
   def dealer_stay(cards)
-    return true if total_score(cards) == 17
+    return true if total_score(cards) >= 17
   end
 
   def hit_or_stay(cards)
@@ -154,11 +153,86 @@ class Game
 
   def start
     play = true
-    game.initialize
+    action = ''
     while (play)
-      if condition
+      initialize
 
+      deal_starting_hand(player_hand, dealer_hand, deck)
+
+      puts "****************************************"
+      puts "You've been dealt the following cards: "
+      player_hand.cards.each do |card|
+        puts "#{card.name} of #{card.suite}"
       end
+      puts "For a total value of: " + String(total_score(player_hand.cards))
+
+      if blackjack(dealer_hand.cards)
+        puts "****************************************"
+        puts "Dealer wins."
+        play = false
+      end
+
+      puts "Dealer has one card face down and: "
+      print_dealer_card
+
+      puts "****************************************"
+      puts "Would you like to hit or stay?"
+      puts "Press 'h' to hit, or 's' to stay."
+      action = gets
+      action = action.chomp
+
+      if action == "h"
+        deal(player_hand, deck)
+        puts "You've been dealt the following cards: "
+        player_hand.cards.each do |card|
+          puts "#{card.name} of #{card.suite}"
+        end
+        puts "For a total value of: " + String(total_score(player_hand.cards))
+        if bust(player_hand.cards)
+          puts "You've lost!"
+          play = false
+          break
+        end
+      end
+
+      puts "****************************************"
+      puts "Dealer reveals cards for the following: "
+
+      dealer_hand.cards.each do |card|
+        puts "#{card.name} of #{card.suite}"
+      end
+      puts "For a total value of: " + String(total_score(dealer_hand.cards))
+
+      while !dealer_stay(dealer_hand.cards)
+        hit_or_stay(dealer_hand.cards)
+        puts "****************************************"
+        puts "Dealer draws the following: "
+        dealer_hand.cards.each do |card|
+          puts "#{card.name} of #{card.suite}"
+        end
+        puts "For a total value of: " + String(total_score(dealer_hand.cards))
+        if dealer_stay(dealer_hand.cards)
+          puts "Dealer stays."
+        end
+        if total_score(dealer_hand.cards) >= 17
+          if bust(dealer_hand.cards)
+            play  = false
+            puts "Dealer loses, you win!"
+          end
+          if blackjack(dealer_hand.cards)
+            play = false
+            puts "Dealer wins, you lose."
+          end
+        end
+      end
+
+      if total_score(player_hand.cards) > total_score(dealer_hand.cards)
+        play = false
+        puts "****************************************"
+        puts "You win!"
+      end
+
+      play = false
     end
   end
 
@@ -297,6 +371,10 @@ class GameTest < Test::Unit::TestCase
     @game.player_hand.cards << Card.new(:diamonds, :ace, [11, 1])
 
     assert @game.blackjack(@game.player_hand.cards)
+  end
+
+  def test_game_starts_a_game
+    @game.start
   end
 
 end
