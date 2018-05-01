@@ -153,6 +153,7 @@ class Game
 
   def start
     play = true
+    hits = false
     action = ''
     while (play)
       initialize
@@ -216,11 +217,13 @@ class Game
         end
         if total_score(dealer_hand.cards) >= 17
           if bust(dealer_hand.cards)
+            hits = true
             play  = false
             puts "Dealer loses, you win!"
             break
           end
           if blackjack(dealer_hand.cards)
+            hits = true
             play = false
             puts "Dealer wins, you lose."
             break
@@ -228,7 +231,35 @@ class Game
         end
       end
 
-      if total_score(player_hand.cards) > total_score(dealer_hand.cards)
+      while !hits
+        puts "Would you like to hit or stay?"
+        puts "Press 'h' to hit, or 's' to stay."
+        action = gets
+        action = action.chomp
+
+        if action == "h"
+          deal(player_hand, deck)
+          puts "You've been dealt the following cards: "
+          player_hand.cards.each do |card|
+            puts "#{card.name} of #{card.suite}"
+          end
+          puts "For a total value of: " + String(total_score(player_hand.cards))
+          if bust(player_hand.cards)
+            puts "You've lost!"
+            play = false
+            break
+          end
+        else
+          break
+        end
+
+        if action == 's'
+          break
+        end
+      end
+
+      if total_score(player_hand.cards) > total_score(dealer_hand.cards) &&
+        total_score(player_hand.cards) <= 21
         play = false
         puts "****************************************"
         puts "You win!"
