@@ -10,19 +10,20 @@ class Deck
   attr_accessor :playable_cards
   SUITES = [:hearts, :diamonds, :spades, :clubs]
   NAME_VALUES = {
-    :two   => 2,
-    :three => 3,
-    :four  => 4,
-    :five  => 5,
-    :six   => 6,
-    :seven => 7,
-    :eight => 8,
-    :nine  => 9,
-    :ten   => 10,
-    :jack  => 10,
-    :queen => 10,
-    :king  => 10,
-    :ace   => [11, 1]}
+    two: 2,
+    three: 3,
+    four: 4,
+    five: 5,
+    six: 6,
+    seven: 7,
+    eight: 8,
+    nine: 9,
+    ten: 10,
+    jack: 10,
+    queen: 10,
+    king: 10,
+    ace: [11, 1]
+  }
 
   def initialize
     shuffle
@@ -59,14 +60,14 @@ class Game
     @deck = Deck.new
   end
 
-  def deal(player, deck)
-    player.cards.push(deck.deal_card)
+  def deal(hand)
+    hand.push(deck.deal_card)
   end
 
-  def deal_starting_hand(player, dealer, deck)
+  def deal_starting_hand
     2.times do
-      deal(player, deck)
-      deal(dealer, deck)
+      deal(player_hand.cards)
+      deal(dealer_hand.cards)
     end
   end
 
@@ -109,6 +110,7 @@ class Game
         total += card.value
       end
     end
+
     if check_for_ace?(cards) == true
       sorted = cards.sort_by { |card| card.name }.reverse
       sorted.pop
@@ -123,6 +125,7 @@ class Game
       end
     end
     total
+    
   end
 
   def check_for_ace?(cards)
@@ -139,7 +142,7 @@ class Game
 
   def hit_or_stay(cards)
     if !dealer_stay(cards)
-      deal(dealer_hand, deck)
+      deal(cards)
     end
   end
 
@@ -158,7 +161,7 @@ class Game
     while (play)
       initialize
 
-      deal_starting_hand(player_hand, dealer_hand, deck)
+      deal_starting_hand
 
       puts "****************************************"
       puts "You've been dealt the following cards: "
@@ -183,7 +186,7 @@ class Game
       action = action.chomp
 
       if action == "h"
-        deal(player_hand, deck)
+        deal(player_hand.cards)
         puts "You've been dealt the following cards: "
         player_hand.cards.each do |card|
           puts "#{card.name} of #{card.suite}"
@@ -238,7 +241,7 @@ class Game
         action = action.chomp
 
         if action == "h"
-          deal(player_hand, deck)
+          deal(player_hand.cards)
           puts "You've been dealt the following cards: "
           player_hand.cards.each do |card|
             puts "#{card.name} of #{card.suite}"
@@ -324,8 +327,8 @@ class GameTest < Test::Unit::TestCase
   end
 
   def test_game_has_a_player_hand
-    @game.deal(@game.player_hand, @game.deck)
-    @game.deal(@game.player_hand, @game.deck)
+    @game.deal(@game.player_hand.cards)
+    @game.deal(@game.player_hand.cards)
     @cards = []
     @cards << @game.player_hand.cards[0]
     @cards << @game.player_hand.cards[1]
@@ -335,16 +338,16 @@ class GameTest < Test::Unit::TestCase
 
   def test_game_sums_player_card_values
     @game.player_hand.cards = []
-    @game.deal(@game.player_hand, @game.deck)
-    @game.deal(@game.player_hand, @game.deck)
+    @game.deal(@game.player_hand.cards)
+    @game.deal(@game.player_hand.cards)
     @total = @game.total_score(@game.player_hand.cards)
 
     assert_equal @game.total_score(@game.player_hand.cards), @total
   end
 
   def test_game_displays_dealer_first_card
-    @game.deal(@game.dealer_hand, @game.deck)
-    @game.deal(@game.dealer_hand, @game.deck)
+    @game.deal(@game.dealer_hand.cards)
+    @game.deal(@game.dealer_hand.cards)
 
     @game.display_dealer_card
   end
